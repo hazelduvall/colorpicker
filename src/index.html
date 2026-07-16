@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A simple interactive CIELAB color picker" />
+  <title>CIELAB color picker</title>
+  <link rel="icon" type="image/png" href="uploads/favicon-16.png" sizes="16x16" />
+  <link rel="icon" type="image/png" href="uploads/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="uploads/favicon-200.png" />
+</head>
+
+<body>
+  <main class="main" role="main">
+    <h1 class="title">CIE<a href="https://en.wikipedia.org/wiki/Lab_color_space">LAB</a> Color Picker</h1>
+    <div class="canvas-container">
+      <canvas id="canvas">Canvas is not supported by your browser</canvas>
+    </div>
+    <div class="controls">
+      <div class="controls-horiz">
+        <input id="slider" type="range" value="50" step="1" min="0" max="100" />
+        <div id="swatch"></div>
+        <input id="rgbhex" type="text" value="#badc01" />
+      </div>
+      <div class="controls-cie">
+        <label id="lab-field1-label" for="lab-field1">L</label><input id="lab-field1" type="number" value="0.50"
+          step="0.01" />
+        <label id="lab-field2-label" for="lab-field2">a</label><input id="lab-field2" type="number" value="0.00"
+          step="0.01" />
+        <label id="lab-field3-label" for="lab-field3">b</label><input id="lab-field3" type="number" value="0.00"
+          step="0.01" />
+      </div>
+      <div class="controls-rgb">
+        <label id="rgb-field1-label" for="rgb-field1">R</label><input id="rgb-field1" type="number" value="127" min="0"
+          max="255" step="1" />
+        <label id="rgb-field2-label" for="rgb-field2">G</label><input id="rgb-field2" type="number" value="127" min="0"
+          max="255" step="1" />
+        <label id="rgb-field3-label" for="rgb-field3">B</label><input id="rgb-field3" type="number" value="127" min="0"
+          max="255" step="1" />
+      </div>
+  </main>
+  <footer class="footer">
+    <a href="https://github.com/hazelduvall/colorpicker/">Source Code</a>
+    <a href="https://www.hazelduvall.dev/">Home</a>
+  </footer>
+</body>
+
+</html>

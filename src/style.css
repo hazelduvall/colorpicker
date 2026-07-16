@@ -1,0 +1,173 @@
+@font-face {
+  font-family: Inconsolata;
+  src: url("./fonts/Inconsolata/Inconsolata-VariableFont_wdth,wght.ttf");
+  font-display: swap;
+}
+
+body, input {
+  font-family: Inconsolata, monospace;
+}
+
+/* Mobile first */
+html, body {
+  height: 100vh;
+  max-height: 100vh;
+  width: 100vw;
+}
+
+body {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: stretch;
+  margin: 0;
+}
+
+h1 {
+	font-size: 2.5rem;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	margin-left: 0.25em;
+	margin-right: 0.25em;
+}
+
+.main {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: stretch;
+  grid-row-gap: 0.25em;
+}
+
+.footer {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-items: center;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+
+#canvas {
+  cursor: crosshair;
+}
+
+.controls {
+  width: calc(100% - 2em);
+  display: grid;
+  grid-template-areas: "horiz horiz"
+                       "lab rgb";
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  justify-items: center;
+}
+
+.controls-horiz {
+  grid-area: horiz;
+  width: 100%;
+  display: grid;
+  grid-template-areas: "slider swatch rgbhex";
+  grid-template-columns: 1fr 4em 10ch;
+  grid-column-gap: 0.25em;
+  align-items: center;
+}
+
+#slider {
+  grid-area: slider;
+}
+
+#swatch {
+  grid-area: swatch;
+  width: 4em;
+  height: 4em;
+  background-color: #fabd01;
+}
+
+#rgbhex {
+  grid-area: rgbhex;
+  height: 1.1em;
+}
+
+.controls-cie {
+  grid-area: lab;
+}
+
+.controls-rgb {
+  grid-area: rgb;
+}
+
+.controls-cie, .controls-rgb {
+  display: grid;
+  grid-template-areas:
+    "l1 f1"
+    "l2 f2"
+    "l3 f3";
+  grid-template-columns: 3ch 10ch;
+}
+
+#lab-field1-label, #rgb-field1-label {
+  grid-area: l1;
+}
+
+#lab-field1, #rgb-field1 {
+  grid-area: f1;
+}
+
+#lab-field2-label, #rgb-field2-label {
+  grid-area: l2;
+}
+
+#lab-field2, #rgb-field2 {
+  grid-area: f2;
+}
+
+#lab-field3-label, #rgb-field3-label {
+  grid-area: l3;
+}
+
+#lab-field3, #rgb-field3 {
+  grid-area: f3;
+}
+
+/* Mobile large, 620px */
+@media screen and (min-width: 38.75em) {
+}
+
+/* Tablet Small 740px */
+@media screen and (min-width: 46.25em) {
+  h1 {
+    font-size: 2.0em;
+  }
+}
+
+/* 16.3 Tablet Large 880px */
+@media screen and (min-width: 55em) {
+
+}
+
+/* Desktop Small 955px */
+@media screen and (min-width: 59.6875em) {
+
+}
+
+/* Desktop Medium 1100px */
+@media screen and (min-width: 68.75em) {
+
+}
+
+/* Desktop Large 1240px */
+@media screen and (min-width: 77.5em) {
+
+}
+
+/* Desktop X-Large 1403px */
+@media screen and (min-width: 87.6875em) {
+
+}
