@@ -1,0 +1,4 @@
+ignoredBuiltDependencies: null
+
+onlyBuiltDependencies:
+  - esbuild

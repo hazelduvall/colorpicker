@@ -1,0 +1,6 @@
+# Ignore built package
+dist/
+
+# Ignore NPM caches
+node_modules/
+package-lock.json
