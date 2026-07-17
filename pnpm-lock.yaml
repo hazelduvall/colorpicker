@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      ciebase-ts:
+        specifier: ^0.1.5
+        version: 0.1.5
       preact:
         specifier: ^10.26.9
         version: 10.29.7(preact-render-to-string@6.7.0)
@@ -488,6 +491,9 @@ packages:
 
   caniuse-lite@1.0.30001805:
     resolution: {integrity: sha512-52noaS3DubycKSXaU30TwPGIp+POyQSUVa5jBEq3vkRkY0kjyb3LQgvhU6WGyCcyXqVLWO0Cw0Q6BSdD0kUfVA==}
+
+  ciebase-ts@0.1.5:
+    resolution: {integrity: sha512-nnz4LhWy8JyVtQT49r4dttYauVxdvflbHpvJKdi9a14AnrAjm6RhGqHo9mIXacQ+uaUb4LGlhPlAmP5XveLsKQ==}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -1134,6 +1140,8 @@ snapshots:
       update-browserslist-db: 1.2.3(browserslist@4.28.6)
 
   caniuse-lite@1.0.30001805: {}
+
+  ciebase-ts@0.1.5: {}
 
   convert-source-map@2.0.0: {}
 
