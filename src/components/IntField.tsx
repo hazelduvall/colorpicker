@@ -24,10 +24,14 @@ interface PerSpaceProps {
 const perSpace: { [space in Space]: PerSpaceProps } = {
   rgb: {
     label: "RGB",
-    mkInputAttrs: () => ({
+    mkInputAttrs: (i) => ({
       min: "0",
       step: "1",
       max: "255",
+      style: {
+        accentColor:
+          i === 0 ? "red" : i === 1 ? "green" : i === 2 ? "blue" : undefined,
+      },
     }),
     valueToString: (value) => Math.round(value * 255).toString(),
     valueFromElem: (elemValue) => elemValue / 255,
