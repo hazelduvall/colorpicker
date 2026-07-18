@@ -25,7 +25,7 @@ export const RgbHex = () => {
   const rgb = clamp(state.rgb).val;
   const value = `#${toHex(rgb[0])}${toHex(rgb[1])}${toHex(rgb[2])}`;
   return (
-    <>
+    <div class="RgbHex">
       <input
         type="text"
         value={value}
@@ -47,7 +47,7 @@ export const RgbHex = () => {
             ];
             dispatch({
               type: "SetRgbAction",
-              rgb: { space: "RGB", inGamut: true, val: rgb },
+              rgb: { space: "rgb", inGamut: true, val: rgb },
             });
           } catch (err) {
             console.error(err);
@@ -55,6 +55,6 @@ export const RgbHex = () => {
         }}
       />
       <CopyButton value={value} />
-    </>
+    </div>
   );
 };

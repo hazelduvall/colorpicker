@@ -1,26 +1,23 @@
-import { BigSlider } from "./BigSlider";
-import { CieIntField } from "./CieIntField";
+import { IntField } from "./IntField";
 import { RgbHex } from "./RgbHex";
-import { RgbIntField } from "./RgbIntField";
 import { Swatch } from "./Swatch";
 
 export const Controls = () => {
   return (
-    <div class="controls">
-      <div class="controls-horiz">
-        <BigSlider />
+    <div class="Controls">
+      <div class="ControlsHorizontal">
         <Swatch />
         <RgbHex />
       </div>
-      <div class="controls-cie">
-        <CieIntField index={0} />
-        <CieIntField index={1} />
-        <CieIntField index={2} />
+      <div class="ControlsLab">
+        <IntField space="lab" index={0} />
+        <IntField space="lab" index={1} />
+        <IntField space="lab" index={2} />
       </div>
-      <div class="controls-rgb">
-        <RgbIntField index={0} />
-        <RgbIntField index={1} />
-        <RgbIntField index={2} />
+      <div class="ControlsRgb">
+        <IntField space="rgb" index={0} />
+        <IntField space="rgb" index={1} />
+        <IntField space="rgb" index={2} />
       </div>
     </div>
   );

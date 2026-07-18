@@ -26,7 +26,7 @@ body {
 
 h1 {
   font-size: 2.5rem;
-  margin: 0.5em 0.25em;
+  margin: 16px 8px;
   justify-self: center;
 }
 
@@ -49,12 +49,12 @@ main {
   cursor: crosshair;
 }
 
-.controls {
+.Controls {
   margin: 0 1rem;
   display: grid;
   grid-template-areas:
-    "horiz horiz"
-    "lab rgb";
+    "lab rgb"
+    "horiz horiz";
   grid-template-rows: auto auto;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -62,44 +62,52 @@ main {
   gap: 16px;
 }
 
-.controls-horiz {
-  grid-area: horiz;
-  width: 100%;
-  display: grid;
-  grid-template-areas: "slider swatch rgbhex";
-  grid-template-columns: 1fr 4em 10ch;
-  grid-column-gap: 0.25em;
-  align-items: center;
-}
-
-#slider {
-  grid-area: slider;
-}
-
-#swatch {
-  grid-area: swatch;
-  width: 4em;
-  height: 4em;
-  background-color: #fabd01;
-}
-
-#rgbhex {
-  grid-area: rgbhex;
-  height: 1.1em;
-}
-
-.controls-cie {
+.ControlsLab {
   grid-area: lab;
 }
 
-.controls-rgb {
+.ControlsRgb {
   grid-area: rgb;
 }
 
-.controls-cie,
-.controls-rgb {
+.ControlsLab,
+.ControlsRgb {
   display: grid;
-  grid-template-columns: 3ch 10ch;
+  grid-template-rows: repeat(3, auto);
+  gap: 4px;
+}
+
+.IntField {
+  display: grid;
+  grid-template-columns: 1ch 9ch 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.ControlsHorizontal {
+  grid-area: horiz;
+
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.Swatch {
+  width: 4em;
+  height: 4em;
+  background-color: red;
+}
+
+.RgbHex {
+  display: grid;
+  grid-template-columns: 12ch auto;
+  gap: 4px;
+}
+
+.CopyButton {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .footer {
@@ -107,7 +115,7 @@ main {
   grid-template-columns: repeat(2, auto);
   justify-content: center;
   gap: 16px;
-  margin: 0.5em 0.25em;
+  margin: 16px 8px;
 }
 
 /* Mobile large, 620px */

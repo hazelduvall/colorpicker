@@ -35,7 +35,7 @@ function cielabToLinear(y: number): number {
   return y <= CIELAB_D ? (y - CIELAB_C) / CIELAB_M : Math.pow(y, CIELAB_A);
 }
 
-function cielabToXyz(lab: Color<"LAB">): Color<"XYZ"> {
+function cielabToXyz(lab: Color<"lab">): Color<"xyz"> {
   lab.val[0] -= CIELAB_OFFSET;
   let xyz = matrix.multiply(CIELAB_MATRIX_INV, lab.val);
   lab.val[0] += CIELAB_OFFSET;
@@ -44,10 +44,10 @@ function cielabToXyz(lab: Color<"LAB">): Color<"XYZ"> {
     cielabToLinear(xyz[1]), // * WHITE_XYZ[1],
     cielabToLinear(xyz[2]), // * WHITE_XYZ[2],
   ];
-  return { space: "XYZ", inGamut: lab.inGamut, val: xyz };
+  return { space: "xyz", inGamut: lab.inGamut, val: xyz };
 }
 
-function cielabFromXyz(xyz: Color<"XYZ">): Color<"LAB"> {
+function cielabFromXyz(xyz: Color<"xyz">): Color<"lab"> {
   const fxyz: Vector3D = [
     cielabFromLinear(xyz.val[0]), // / WHITE_XYZ[0]),
     cielabFromLinear(xyz.val[1]), // / WHITE_XYZ[1]),
@@ -55,7 +55,7 @@ function cielabFromXyz(xyz: Color<"XYZ">): Color<"LAB"> {
   ];
   const lab = matrix.multiply(CIELAB_MATRIX, fxyz);
   lab[0] += CIELAB_OFFSET;
-  return { space: "LAB", inGamut: xyz.inGamut, val: lab };
+  return { space: "lab", inGamut: xyz.inGamut, val: lab };
 }
 
 function clampNumber(
@@ -117,32 +117,32 @@ function srgbToLinear(y: number): [boolean, number] {
   ];
 }
 
-export function srgbFromXyz(xyz: Color<"XYZ">): Color<"RGB"> {
+export function srgbFromXyz(xyz: Color<"xyz">): Color<"rgb"> {
   let rgb = matrix.multiply(SRGB_MATRIX, xyz.val);
   const [rg, r] = srgbFromLinear(rgb[0]);
   const [gg, g] = srgbFromLinear(rgb[1]);
   const [bg, b] = srgbFromLinear(rgb[2]);
-  return { space: "RGB", inGamut: rg && gg && bg, val: [r, g, b] };
+  return { space: "rgb", inGamut: rg && gg && bg, val: [r, g, b] };
 }
 
-export function srgbToXyz(rgb: Color<"RGB">): Color<"XYZ"> {
+export function srgbToXyz(rgb: Color<"rgb">): Color<"xyz"> {
   const [rg, r] = srgbToLinear(rgb.val[0]);
   const [gg, g] = srgbToLinear(rgb.val[1]);
   const [bg, b] = srgbToLinear(rgb.val[2]);
   return {
-    space: "XYZ",
+    space: "xyz",
     inGamut: rg && gg && bg,
     val: matrix.multiply(SRGB_MATRIX_INV, [r, g, b]),
   };
 }
 
-export function srgbToCielab(rgb: Color<"RGB">): Color<"LAB"> {
+export function srgbToCielab(rgb: Color<"rgb">): Color<"lab"> {
   const xyz = srgbToXyz(rgb);
   const lab = cielabFromXyz(xyz);
   return lab;
 }
 
-export function cielabToSrgb(lab: Color<"LAB">): Color<"RGB"> {
+export function cielabToSrgb(lab: Color<"lab">): Color<"rgb"> {
   const xyz = cielabToXyz(lab);
   const rgbUnclamped = srgbFromXyz(xyz);
   // const rgb = clamp(rgbUnclamped);

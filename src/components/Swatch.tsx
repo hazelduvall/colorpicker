@@ -6,7 +6,7 @@ export const Swatch = () => {
   const rgb = clamp(state.rgb).val;
   return (
     <div
-      id="swatch"
+      class="Swatch"
       style={{
         background: `rgb(${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255})`,
       }}

@@ -26,7 +26,7 @@ export const CopyButton = ({ value }: Props) => {
 
   return (
     <button
-      class="copy"
+      class="CopyButton"
       onClick={() =>
         navigator.clipboard
           .writeText(value)

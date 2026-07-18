@@ -7,19 +7,19 @@ export interface Color<T> {
 }
 
 export interface ColorState {
-  rgb: Color<"RGB">;
-  lab: Color<"LAB">;
+  rgb: Color<"rgb">;
+  lab: Color<"lab">;
   chroma: number;
 }
 
 export interface SetRgbAction {
   type: "SetRgbAction";
-  rgb: Color<"RGB">;
+  rgb: Color<"rgb">;
 }
 
 export interface SetLabAction {
   type: "SetLabAction";
-  lab: Color<"LAB">;
+  lab: Color<"lab">;
 }
 
 export interface SetChromaAction {
@@ -28,3 +28,4 @@ export interface SetChromaAction {
 }
 
 export type Action = SetRgbAction | SetLabAction | SetChromaAction;
+export type ActionType = Action["type"];

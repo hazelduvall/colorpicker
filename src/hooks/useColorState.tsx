@@ -43,7 +43,7 @@ const colorStateReducer: Reducer<ColorState, Action> = (state, action) => {
 export const ColorStateProvider = ({ children }: PropsWithChildren) => {
   const defaultState = useMemo(() => {
     const val: Vector3D = [Math.random(), Math.random(), Math.random()];
-    const rgb: Color<"RGB"> = { space: "RGB", inGamut: true, val };
+    const rgb: Color<"rgb"> = { space: "rgb", inGamut: true, val };
     const lab = srgbToCielab(rgb);
 
     return { rgb, lab, chroma: 1.0 };
