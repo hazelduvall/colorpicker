@@ -148,3 +148,11 @@ export function cielabToSrgb(lab: Color<"lab">): Color<"rgb"> {
   // const rgb = clamp(rgbUnclamped);
   return rgbUnclamped; // clamp later so we can see which fields are out-of-range.
 }
+
+export function inpToLab(inp: Vector3D): Vector3D {
+  return [inp[0], 2.0 * inp[1] - 1.0, 2.0 * inp[2] - 1.0];
+}
+
+export function labToInp(lab: Vector3D): Vector3D {
+  return [lab[0], (lab[1] + 1.0) / 2.0, (lab[2] + 1.0) / 2.0];
+}

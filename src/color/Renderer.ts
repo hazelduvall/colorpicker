@@ -3,7 +3,9 @@ import type { WorkerRequest, WorkerResponse } from "./WorkerState";
 export class Renderer {
   private workers: Worker[];
   private imageData: ImageData;
+  private imageBitmap: ImageBitmap | undefined;
   private z: number;
+  private nonce: number;
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -13,24 +15,31 @@ export class Renderer {
     this.imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
 
     const workerFile = new URL("./worker.ts", import.meta.url);
-    this.workers = Array(numWorkers).map(
+    this.workers = Array.from({ length: numWorkers }).map(
       () => new Worker(workerFile, { type: "module" }),
     );
 
     this.z = initialZ;
+    this.nonce = 0;
   }
 
-  public resize(ctx: CanvasRenderingContext2D) {
+  public getImageBitmap(): ImageBitmap | undefined {
+    return this.imageBitmap;
+  }
+
+  public async resize(ctx: CanvasRenderingContext2D, signal: AbortSignal) {
     this.imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
-    this.redraw();
+    return await this.redraw(signal);
   }
 
-  public setZ(newZ: number) {
+  public async setZ(newZ: number, signal: AbortSignal) {
     this.z = newZ;
+    return await this.redraw(signal);
   }
 
-  public async redraw() {
+  private async redraw(signal: AbortSignal) {
     console.time("redraw");
+    this.nonce += 1;
 
     const promises: Array<Promise<void>> = [];
 
@@ -42,21 +51,32 @@ export class Renderer {
       yBegin += blockHeight
     ) {
       const yEnd = Math.min(yBegin + blockHeight, this.imageData.height);
-      const worker = this.workers[i++];
+      const worker = this.workers[i];
+      i += 1;
       if (!worker) {
         throw new Error("more blocks than workers??");
       }
 
       promises.push(
-        new Promise((resolve) => {
+        new Promise((resolve, reject) => {
+          if (signal.aborted) {
+            reject(new Error("aborted first"));
+            return;
+          }
+
           // All of this reads a bit backwards, but that's just how it has to be set up ig...
           const listener = (e: MessageEvent) => {
-            const data: WorkerResponse = e.data;
+            const { data, nonce }: WorkerResponse = e.data;
+            if (nonce !== this.nonce) return;
             this.imageData.data.set(data, 4 * this.imageData.width * yBegin);
 
             worker.removeEventListener("message", listener);
             resolve(undefined);
           };
+          signal.addEventListener("abort", () => {
+            worker.removeEventListener("message", listener);
+            reject(new Error("aborted signal"));
+          });
           worker.addEventListener("message", listener);
 
           const request: WorkerRequest = {
@@ -65,6 +85,7 @@ export class Renderer {
             yBegin,
             yEnd,
             z: this.z,
+            nonce: this.nonce,
           };
           worker.postMessage(request);
         }),
@@ -72,6 +93,11 @@ export class Renderer {
     }
 
     await Promise.all(promises);
+    signal.throwIfAborted();
+
+    this.imageBitmap = await createImageBitmap(this.imageData);
+    signal.throwIfAborted();
+
     console.timeEnd("redraw");
   }
 }

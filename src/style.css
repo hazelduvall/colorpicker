@@ -37,15 +37,12 @@ main {
   grid-row-gap: 16px;
 }
 
-.canvas-container {
-  width: 100%;
-  height: 100%;
+.BigCanvas {
   display: grid;
-  justify-items: center;
-  align-items: center;
+  justify-content: center;
 }
 
-#canvas {
+canvas {
   cursor: crosshair;
 }
 

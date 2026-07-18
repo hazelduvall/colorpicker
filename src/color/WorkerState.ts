@@ -4,6 +4,10 @@ export interface WorkerRequest {
   yBegin: number;
   yEnd: number;
   z: number;
+  nonce: number;
 }
 
-export type WorkerResponse = Uint8ClampedArray;
+export type WorkerResponse = {
+  data: Uint8ClampedArray;
+  nonce: number;
+};

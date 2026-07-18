@@ -1,17 +1,9 @@
 import type { Vector3D } from "ciebase-ts";
-import { cielabToSrgb } from "./conversions";
-import type { WorkerRequest } from "./WorkerState";
-
-function inpToLab(inp: Vector3D): Vector3D {
-  return [inp[0], 2.0 * inp[1] - 1.0, 2.0 * inp[2] - 1.0];
-}
-
-function labToInp(lab: Vector3D): Vector3D {
-  return [lab[0], (lab[1] + 1.0) / 2.0, (lab[2] + 1.0) / 2.0];
-}
+import { cielabToSrgb, inpToLab } from "./conversions";
+import type { WorkerRequest, WorkerResponse } from "./WorkerState";
 
 onmessage = (e) => {
-  const { width, height, yBegin, yEnd, z }: WorkerRequest = e.data;
+  const { width, height, yBegin, yEnd, z, nonce }: WorkerRequest = e.data;
   let inp: Vector3D = [z, 0.0, 0.0];
   let data = new Uint8ClampedArray(4 * width * (yEnd - yBegin));
   for (let y = yBegin; y < yEnd; ++y) {
@@ -39,5 +31,10 @@ onmessage = (e) => {
       data[offset + 3] = 255.0;
     }
   }
-  postMessage(data);
+
+  const response: WorkerResponse = {
+    data,
+    nonce,
+  };
+  postMessage(response);
 };
