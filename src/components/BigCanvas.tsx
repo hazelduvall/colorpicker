@@ -26,14 +26,6 @@ export const BigCanvas = () => {
     return new Renderer(ctx, navigator.hardwareConcurrency || 2, inp[0]);
   }, [canvas]);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const newController = useCallback((): AbortController => {
-    abortControllerRef.current?.abort();
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-    return abortController;
-  }, [abortControllerRef]);
-
   const draw = useCallback(() => {
     const ctx = canvas?.getContext("2d");
     if (!ctx) return;
@@ -44,9 +36,9 @@ export const BigCanvas = () => {
     ctx.clearRect(0, 0, width, height);
 
     const img = renderer?.getImageBitmap();
-    if (img) {
+    if (img?.width === width && img?.height === height) {
       ctx.save();
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.putImageData(img, 0, 0);
       ctx.restore();
     }
 
@@ -83,6 +75,10 @@ export const BigCanvas = () => {
     });
   }, [scheduledDrawRef, draw]);
 
+  // TODO: currently, my code doesn't handle large images well at all. This
+  // might be from an inefficient render coordination mechanism. For now my
+  // solution is simply to render to a smaller canvas :)
+  /*
   const onResize = useCallback(() => {
     if (!canvas || !div) return;
 
@@ -96,9 +92,8 @@ export const BigCanvas = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx || !renderer) return;
 
-    const signal = newController().signal;
     void renderer
-      .resize(ctx, signal)
+      .resize(ctx)
       .then(() => requestDraw())
       .catch((e) => {
         console.error("resize err", e);
@@ -111,6 +106,7 @@ export const BigCanvas = () => {
     onResize();
     return () => window.removeEventListener("resize", onResize);
   }, [onResize]);
+  */
 
   const inpX = inp[1];
   const inpY = inp[2];
@@ -124,9 +120,8 @@ export const BigCanvas = () => {
   useEffect(() => {
     if (!renderer) return;
 
-    const signal = newController().signal;
     void renderer
-      .setZ(inpZ, signal)
+      .setZ(inpZ)
       .then(() => requestDraw())
       .catch((e) => {
         console.error("inpZ changed err", e);
@@ -136,7 +131,9 @@ export const BigCanvas = () => {
 
   return (
     <div ref={setDiv} class="BigCanvas">
-      <canvas ref={setCanvas}>Canvas is not supported by your browser</canvas>
+      <canvas ref={setCanvas} width={256} height={256}>
+        Canvas is not supported by your browser
+      </canvas>
     </div>
   );
 };

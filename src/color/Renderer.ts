@@ -3,9 +3,9 @@ import type { WorkerRequest, WorkerResponse } from "./WorkerState";
 export class Renderer {
   private workers: Worker[];
   private imageData: ImageData;
-  private imageBitmap: ImageBitmap | undefined;
   private z: number;
-  private nonce: number;
+  private nextFrame: number;
+  private lastSeenFrame: number;
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -14,90 +14,60 @@ export class Renderer {
   ) {
     this.imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
 
-    const workerFile = new URL("./worker.ts", import.meta.url);
     this.workers = Array.from({ length: numWorkers }).map(
-      () => new Worker(workerFile, { type: "module" }),
+      () =>
+        new Worker(new URL("./worker.ts", import.meta.url), { type: "module" }),
     );
 
     this.z = initialZ;
-    this.nonce = 0;
+    this.nextFrame = 0;
+    this.lastSeenFrame = 0;
   }
 
-  public getImageBitmap(): ImageBitmap | undefined {
-    return this.imageBitmap;
+  public getImageBitmap(): ImageData {
+    return this.imageData;
   }
 
-  public async resize(ctx: CanvasRenderingContext2D, signal: AbortSignal) {
+  public async resize(ctx: CanvasRenderingContext2D) {
     this.imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
-    return await this.redraw(signal);
+    return await this.redraw();
   }
 
-  public async setZ(newZ: number, signal: AbortSignal) {
+  public async setZ(newZ: number) {
     this.z = newZ;
-    return await this.redraw(signal);
+    return await this.redraw();
   }
 
-  private async redraw(signal: AbortSignal) {
-    console.time("redraw");
-    this.nonce += 1;
+  private async redraw() {
+    const label = `redraw ${this.nextFrame}`;
+    console.time(label);
 
-    const promises: Array<Promise<void>> = [];
+    const worker = this.workers[this.nextFrame % this.workers.length];
+    this.nextFrame += 1;
 
-    const blockHeight = Math.ceil(this.imageData.height / this.workers.length);
-    let i = 0;
-    for (
-      let yBegin = 0;
-      yBegin < this.imageData.height;
-      yBegin += blockHeight
-    ) {
-      const yEnd = Math.min(yBegin + blockHeight, this.imageData.height);
-      const worker = this.workers[i];
-      i += 1;
-      if (!worker) {
-        throw new Error("more blocks than workers??");
-      }
+    await new Promise((resolve) => {
+      // All of this reads a bit backwards, but that's just how it has to be set up ig...
+      const listener = (e: MessageEvent) => {
+        const { data, frame }: WorkerResponse = e.data;
+        if (frame < this.lastSeenFrame) return;
+        this.lastSeenFrame = frame;
 
-      promises.push(
-        new Promise((resolve, reject) => {
-          if (signal.aborted) {
-            reject(new Error("aborted first"));
-            return;
-          }
+        this.imageData.data.set(data);
 
-          // All of this reads a bit backwards, but that's just how it has to be set up ig...
-          const listener = (e: MessageEvent) => {
-            const { data, nonce }: WorkerResponse = e.data;
-            if (nonce !== this.nonce) return;
-            this.imageData.data.set(data, 4 * this.imageData.width * yBegin);
+        worker.removeEventListener("message", listener);
+        resolve(undefined);
+      };
+      worker.addEventListener("message", listener);
 
-            worker.removeEventListener("message", listener);
-            resolve(undefined);
-          };
-          signal.addEventListener("abort", () => {
-            worker.removeEventListener("message", listener);
-            reject(new Error("aborted signal"));
-          });
-          worker.addEventListener("message", listener);
+      const request: WorkerRequest = {
+        width: this.imageData.width,
+        height: this.imageData.height,
+        z: this.z,
+        frame: this.nextFrame,
+      };
+      worker.postMessage(request);
+    });
 
-          const request: WorkerRequest = {
-            width: this.imageData.width,
-            height: this.imageData.height,
-            yBegin,
-            yEnd,
-            z: this.z,
-            nonce: this.nonce,
-          };
-          worker.postMessage(request);
-        }),
-      );
-    }
-
-    await Promise.all(promises);
-    signal.throwIfAborted();
-
-    this.imageBitmap = await createImageBitmap(this.imageData);
-    signal.throwIfAborted();
-
-    console.timeEnd("redraw");
+    console.timeEnd(label);
   }
 }

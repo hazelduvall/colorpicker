@@ -39,7 +39,8 @@ main {
 
 .BigCanvas {
   display: grid;
-  justify-content: center;
+  justify-items: center;
+  align-items: stretch;
 }
 
 canvas {
