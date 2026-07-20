@@ -4,8 +4,10 @@ export class Renderer {
   private workers: Worker[];
   private imageData: ImageData;
   private z: number;
-  private nextFrame: number;
-  private lastSeenFrame: number;
+
+  private cache = new Map<string, Uint8ClampedArray>();
+  private nextFrame = 0;
+  private lastSeenFrame = 0;
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -20,17 +22,10 @@ export class Renderer {
     );
 
     this.z = initialZ;
-    this.nextFrame = 0;
-    this.lastSeenFrame = 0;
   }
 
   public getImageBitmap(): ImageData {
     return this.imageData;
-  }
-
-  public async resize(ctx: CanvasRenderingContext2D) {
-    this.imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
-    return await this.redraw();
   }
 
   public async setZ(newZ: number) {
@@ -39,6 +34,13 @@ export class Renderer {
   }
 
   private async redraw() {
+    const key = this.z.toFixed(3);
+    const cachedFrame = this.cache.get(key);
+    if (cachedFrame) {
+      this.imageData.data.set(cachedFrame);
+      return;
+    }
+
     const label = `redraw ${this.nextFrame}`;
     console.time(label);
 
@@ -48,7 +50,10 @@ export class Renderer {
     await new Promise((resolve) => {
       // All of this reads a bit backwards, but that's just how it has to be set up ig...
       const listener = (e: MessageEvent) => {
-        const { data, frame }: WorkerResponse = e.data;
+        const { data, z, frame }: WorkerResponse = e.data;
+        const newKey = z.toFixed(3);
+        this.cache.set(newKey, data);
+
         if (frame < this.lastSeenFrame) return;
         this.lastSeenFrame = frame;
 

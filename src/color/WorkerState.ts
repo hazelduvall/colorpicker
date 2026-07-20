@@ -7,5 +7,6 @@ export interface WorkerRequest {
 
 export type WorkerResponse = {
   data: Uint8ClampedArray;
+  z: number;
   frame: number;
 };

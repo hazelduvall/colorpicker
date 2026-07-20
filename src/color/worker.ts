@@ -34,6 +34,7 @@ onmessage = (e) => {
 
   const response: WorkerResponse = {
     data,
+    z,
     frame,
   };
   postMessage(response);

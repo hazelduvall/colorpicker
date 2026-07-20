@@ -5,20 +5,25 @@ import {
   useRef,
   useState,
 } from "preact/hooks";
-import { labToInp } from "../color/conversions";
+import { inpToLab, labToInp } from "../color/conversions";
 import { Renderer } from "../color/Renderer";
 import { useColorState } from "../hooks/useColorState";
 
 export const BigCanvas = () => {
-  const { state } = useColorState();
+  const { state, dispatch } = useColorState();
+
   const inp = labToInp(state.lab.val);
+  const inpZ = inp[0];
+  const inpX = inp[1];
+  const inpY = inp[2];
 
-  const cursorX = useRef(inp[1]);
-  const cursorY = useRef(inp[2]);
+  const cursorZ = useRef(inpZ);
+  const cursorX = useRef(inpX);
+  const cursorY = useRef(inpY);
 
-  const [div, setDiv] = useState<HTMLDivElement | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
 
+  // Worker pool to queue/cache rendered frames.
   const renderer = useMemo(() => {
     const ctx = canvas?.getContext("2d");
     if (!ctx) return;
@@ -26,6 +31,7 @@ export const BigCanvas = () => {
     return new Renderer(ctx, navigator.hardwareConcurrency || 2, inp[0]);
   }, [canvas]);
 
+  // Main function to do a complete draw
   const draw = useCallback(() => {
     const ctx = canvas?.getContext("2d");
     if (!ctx) return;
@@ -65,6 +71,7 @@ export const BigCanvas = () => {
     ctx.stroke();
   }, [canvas, renderer, cursorX, cursorY]);
 
+  // Redraw only on animation frames
   const scheduledDrawRef = useRef(false);
   const requestDraw = useCallback(() => {
     if (scheduledDrawRef.current) return;
@@ -75,62 +82,78 @@ export const BigCanvas = () => {
     });
   }, [scheduledDrawRef, draw]);
 
-  // TODO: currently, my code doesn't handle large images well at all. This
-  // might be from an inefficient render coordination mechanism. For now my
-  // solution is simply to render to a smaller canvas :)
-  /*
-  const onResize = useCallback(() => {
-    if (!canvas || !div) return;
-
-    const width = div.offsetWidth;
-    const height = div.offsetHeight;
-
-    // Trim to a 1:1 aspect ratio
-    canvas.width = Math.min(width, height);
-    canvas.height = Math.min(width, height);
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx || !renderer) return;
-
-    void renderer
-      .resize(ctx)
-      .then(() => requestDraw())
-      .catch((e) => {
-        console.error("resize err", e);
-        // Expected this might throw, suppress all errors
-      });
-  }, [div, canvas, renderer]);
-
+  // Redraw the canvas whenever any input changes.
   useEffect(() => {
-    window.addEventListener("resize", onResize);
-    onResize();
-    return () => window.removeEventListener("resize", onResize);
-  }, [onResize]);
-  */
-
-  const inpX = inp[1];
-  const inpY = inp[2];
-  useEffect(() => {
+    const oldZ = cursorZ.current;
+    const oldX = cursorX.current;
+    const oldY = cursorY.current;
+    cursorZ.current = inpZ;
     cursorX.current = inpX;
     cursorY.current = inpY;
-    requestDraw();
-  }, [inpX, inpY, cursorX, cursorY]);
 
-  const inpZ = inp[0];
+    if (oldZ !== inpZ) {
+      void renderer
+        ?.setZ(inpZ)
+        .then(() => requestDraw())
+        .catch((e) => {
+          console.error("inpZ changed err", e);
+          // Expected this might throw, suppress all errors
+        });
+    }
+    if (oldX !== inpX || oldY !== inpY) {
+      requestDraw();
+    }
+  }, [inpZ, inpX, inpY, renderer, requestDraw]);
+
+  // Listener so touching the canvas will move the cursor
   useEffect(() => {
-    if (!renderer) return;
+    if (!canvas) return;
+
+    const listener = (e: MouseEvent) => {
+      e.preventDefault();
+      if (e.buttons & 1) {
+        const newX = e.offsetX / canvas.offsetWidth;
+        const newY = 1.0 - e.offsetY / canvas.offsetHeight;
+        const newLab = inpToLab([cursorZ.current, newX, newY]);
+        dispatch({
+          type: "SetLabAction",
+          lab: { space: "lab", inGamut: true, val: newLab },
+        });
+      }
+    };
+    canvas.addEventListener("pointerdown", listener);
+    canvas.addEventListener("pointermove", listener);
+    return () => {
+      canvas.removeEventListener("pointerdown", listener);
+      canvas.removeEventListener("pointermove", listener);
+    };
+  }, [canvas, dispatch]);
+
+  // Prevent held touches from causing highlight on safari
+  useEffect(() => {
+    if (!canvas) return;
+
+    const listener = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+    canvas.addEventListener("touchstart", listener);
+    return () => canvas.removeEventListener("touchstart", listener);
+  }, [canvas]);
+
+  // When first loading, request a render
+  useEffect(() => {
+    if (!canvas || !renderer) return;
 
     void renderer
-      .setZ(inpZ)
+      .setZ(cursorZ.current)
       .then(() => requestDraw())
       .catch((e) => {
-        console.error("inpZ changed err", e);
-        // Expected this might throw, suppress all errors
+        console.error("first draw err", e);
       });
-  }, [inpZ, renderer]);
+  }, [canvas, renderer]);
 
   return (
-    <div ref={setDiv} class="BigCanvas">
+    <div class="BigCanvas">
       <canvas ref={setCanvas} width={256} height={256}>
         Canvas is not supported by your browser
       </canvas>
