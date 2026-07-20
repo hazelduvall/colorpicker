@@ -44,6 +44,8 @@ main {
 }
 
 canvas {
+  max-width: 100vw;
+  max-height: 100vw;
   cursor: crosshair;
 }
 
@@ -56,7 +58,7 @@ canvas {
     "lab rgb"
     "horiz horiz";
   align-items: center;
-  justify-items: center;
+  justify-items: stretch;
   gap: 16px;
 }
 
@@ -88,6 +90,7 @@ canvas {
 
 .ControlsHorizontal {
   grid-area: horiz;
+  justify-self: center;
 
   display: grid;
   grid-template-columns: auto auto;
@@ -141,9 +144,6 @@ canvas {
 
 /* Tablet Small 740px */
 @media screen and (max-width: 46.25em) {
-  h1 {
-    font-size: 2em;
-  }
 }
 
 /* 16.3 Tablet Large 880px */
