@@ -82,6 +82,10 @@ canvas {
   align-items: center;
 }
 
+.IntField label {
+  cursor: ns-resize;
+}
+
 .ControlsHorizontal {
   grid-area: horiz;
 

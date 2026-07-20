@@ -1,6 +1,6 @@
 import { Vector3D } from "ciebase-ts";
 import type { InputHTMLAttributes, TargetedEvent } from "preact";
-import { useCallback, useId } from "preact/hooks";
+import { useCallback, useEffect, useId, useRef, useState } from "preact/hooks";
 import { Action } from "../color/ColorState";
 import { clamp } from "../color/conversions";
 import { useColorState } from "../hooks/useColorState";
@@ -62,40 +62,72 @@ const perSpace: { [space in Space]: PerSpaceProps } = {
 
 export const IntField = ({ space, index }: Props) => {
   const { state, dispatch } = useColorState();
+
+  // space & index aren't _actually_ going to change, no no need to be reactive wrt any of these
   const { label, mkInputAttrs, valueToString, valueFromElem, mkAction } =
     perSpace[space];
   const inputAttrs = mkInputAttrs(index);
 
   const color = state[space].val;
+  const colorRef = useRef(color);
+  useEffect(() => {
+    colorRef.current = color;
+  }, [color]);
+
   const value = valueToString(color[index]);
-  const setValue = useCallback(
+  const setValue = useCallback((elem: HTMLInputElement): void => {
+    const oldColor = colorRef.current;
+    const newColor: Vector3D = [oldColor[0], oldColor[1], oldColor[2]];
+    const newValue = valueFromElem(elem.valueAsNumber);
+    newColor[index] = newValue;
+    dispatch(mkAction(newColor));
+  }, []);
+
+  const onChange = useCallback(
     (e: TargetedEvent<HTMLInputElement>): void => {
-      const newValue = valueFromElem(e.currentTarget.valueAsNumber);
-      const newColor: Vector3D = [color[0], color[1], color[2]];
-      newColor[index] = newValue;
-      dispatch(mkAction(newColor));
+      setValue(e.currentTarget);
     },
-    [color, index],
+    [setValue],
   );
+
+  // Make scrolling while hovered over the div change the value
+  const [div, setDiv] = useState<HTMLDivElement | null>(null);
+  const [input, setInput] = useState<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (!div || !input) return;
+
+    const listener = (e: WheelEvent) => {
+      if (e.deltaY < 0) {
+        input.stepUp();
+        setValue(input);
+      } else if (e.deltaY > 0) {
+        input.stepDown();
+        setValue(input);
+      }
+    };
+    div.addEventListener("wheel", listener);
+    return () => div.removeEventListener("wheel", listener);
+  }, [div, input, setValue]);
 
   const numberInputId = useId();
   return (
-    <div class="IntField">
+    <div ref={setDiv} class="IntField">
       <label for={numberInputId}>{label[index]}</label>
       <input
         id={numberInputId}
+        ref={setInput}
         class="NumberInput"
         type="number"
         {...inputAttrs}
         value={value}
-        onChange={setValue}
+        onChange={onChange}
       />
       <input
         type="range"
         class="SliderInput"
         {...inputAttrs}
         value={value}
-        onChange={setValue}
+        onChange={onChange}
       />
     </div>
   );
