@@ -1,3 +1,4 @@
+import clipboardCopy from "clipboard-copy";
 import { useCallback, useRef, useState } from "preact/hooks";
 
 type State = "ok" | "error";
@@ -25,20 +26,23 @@ export const CopyButton = ({ value }: Props) => {
   );
 
   return (
-    <button
-      class="CopyButton"
-      onClick={() =>
-        navigator.clipboard
-          .writeText(value)
-          .then(() => transition("ok"))
-          .catch((err) => {
+    <>
+      <button
+        class="CopyButton"
+        onClick={async (e) => {
+          e.preventDefault();
+          try {
+            await clipboardCopy(value);
+            transition("ok");
+          } catch (err) {
             transition("error");
             console.error(err);
-          })
-      }
-    >
-      <ButtonIcon state={state} />
-    </button>
+          }
+        }}
+      >
+        <ButtonIcon state={state} />
+      </button>
+    </>
   );
 };
 

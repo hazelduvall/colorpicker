@@ -50,11 +50,11 @@ canvas {
 .Controls {
   margin: 0 1rem;
   display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "lab rgb"
     "horiz horiz";
-  grid-template-rows: auto auto;
-  grid-template-columns: 1fr 1fr;
   align-items: center;
   justify-items: center;
   gap: 16px;
@@ -104,8 +104,15 @@ canvas {
 }
 
 .CopyButton {
-  width: 1.5rem;
-  height: 1.5rem;
+  box-sizing: content-box;
+  width: 1rem;
+  height: 1rem;
+  padding: 0.25rem;
+}
+
+.CopyButton svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .footer {
@@ -117,11 +124,19 @@ canvas {
 }
 
 /* Mobile large, 620px */
-@media screen and (min-width: 38.75em) {
+@media screen and (max-width: 38.75em) {
+  .Controls {
+    grid-template-rows: auto auto auto;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "lab"
+      "rgb"
+      "horiz";
+  }
 }
 
 /* Tablet Small 740px */
-@media screen and (min-width: 46.25em) {
+@media screen and (max-width: 46.25em) {
   h1 {
     font-size: 2em;
   }

@@ -9,8 +9,11 @@ importers:
   .:
     dependencies:
       ciebase-ts:
-        specifier: ^0.1.5
+        specifier: 0.1.5
         version: 0.1.5
+      clipboard-copy:
+        specifier: ^4.0.1
+        version: 4.0.1
       preact:
         specifier: ^10.26.9
         version: 10.29.7(preact-render-to-string@6.7.0)
@@ -494,6 +497,9 @@ packages:
 
   ciebase-ts@0.1.5:
     resolution: {integrity: sha512-nnz4LhWy8JyVtQT49r4dttYauVxdvflbHpvJKdi9a14AnrAjm6RhGqHo9mIXacQ+uaUb4LGlhPlAmP5XveLsKQ==}
+
+  clipboard-copy@4.0.1:
+    resolution: {integrity: sha512-wOlqdqziE/NNTUJsfSgXmBMIrYmfd5V0HCGsR8uAKHcg+h9NENWINcfRjtWGU77wDHC8B8ijV4hMTGYbrKovng==}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -1142,6 +1148,8 @@ snapshots:
   caniuse-lite@1.0.30001805: {}
 
   ciebase-ts@0.1.5: {}
+
+  clipboard-copy@4.0.1: {}
 
   convert-source-map@2.0.0: {}
 
